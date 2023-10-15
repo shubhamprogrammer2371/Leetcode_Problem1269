@@ -1,0 +1,37 @@
+/*
+I create an 2D array dp[i][j] to store "how many ways to go back index 0 from index j while remaining i steps"
+If I want to reach index j while remaining i steps, it must come from index j-1, j or j+1 (if possible).
+So dp[i][j] = dp[i-1][j-1] + dp[i-1][j] + dp[i-1][j+1].
+However this array is too large, so I only keep the (i-1)-th step to compute i-th step. And I implement it with a boolean variable s.
+Also, the type of dp is unsinged int in case of overflow while adding three (i-1)-th step value.
+Last but not least, if j > step-1, there is impossible to go back index 0. So skip those computation for optimization.
+*/
+
+
+int numWays(int steps, int arrLen){
+    if (arrLen == 1) 
+        return 1;
+    else if (steps == 1) 
+        return 2;
+    unsigned int dp[2][arrLen];
+    for (int i = 0 ; i < arrLen ; i++) 
+        dp[0][i] = (i < 2) ? 1 : 0;
+    bool s = 0;
+    for (int i = 1 ; i < steps ; i++){
+        s = !s;
+        for (int j = 0 ; j < arrLen ; j++)
+        {
+            if (j > steps - i) 
+                break;
+            if (j == 0) 
+                dp[s][j] = dp[!s][j] + dp[!s][j+1];
+            else if (j == (arrLen - 1))
+                dp[s][j] = dp[!s][j] + dp[!s][j-1];
+            else 
+                dp[s][j] = dp[!s][j] + dp[!s][j+1] + dp[!s][j-1];
+            if (dp[s][j] > 1000000007) 
+                dp[s][j] = dp[s][j]%1000000007;
+        }
+    }
+    return (int)dp[s][0];
+}
